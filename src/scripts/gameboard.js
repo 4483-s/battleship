@@ -1,30 +1,33 @@
 import Ship from './ships.js';
-
-const coin = () => !Math.floor(Math.random() * 2);
+import { coin } from './utils.js';
 export default class Gameboard {
-  constructor() {
-    this.board = this.genBoard();
+  constructor(init) {
+    this.board = init ? this.init() : null;
     this.shipCount = 0;
     this.boardCleaned = true;
+    this.shipPoints = {};
   }
-  //receive arrays of key, value pair representing coordinates e.g. [1,2], [1,3]
+  isDefeated() {
+    return !this.shipCount;
+  }
+
   placeShip(...co) {
-    const ship = new Ship();
-    ship.length = co.length;
+    //receive arrays of key, value pair representing coordinates e.g. [1,2], [1,3]
+    const ship = new Ship(co.length);
     for (const curr of co) {
       const cell = this.board[`${curr[0]},${curr[1]}`];
       cell.ship = ship;
-      cell.getSurroudingCellsOccupied();
+      cell.getSurroudingCellsUnavailable();
     }
     this.shipCount++;
   }
   placeShipByHead(head, length, d) {
-    const ship = new Ship();
-    ship.length = length;
+    const ship = new Ship(length);
+    ship.dir = d === 'right' ? 'h' : 'v';
     let curr = this.board[`${head[0]},${head[1]}`];
     for (let i = 0; i < length; i++) {
       curr.ship = ship;
-      if (curr) curr.getSurroudingCellsInavailable();
+      if (curr) curr.getSurroudingCellsUnavailable();
       curr = curr[d];
     }
     this.shipCount++;
@@ -32,15 +35,15 @@ export default class Gameboard {
   // if successfully hit, return true
   receiveAttack(x, y) {
     const tar = this.board[`${x},${y}`];
-    //if no ship, create a Square object then record attacked
+
     if (!tar.ship) {
+      //responds towards emptyCell
       tar.attacked = true;
       return true;
     }
     //if the square is hit before, return false directly
-    else if (tar.attacked) {
-      return false;
-    } else {
+    else if (tar.attacked) return false;
+    else {
       tar.ship.hit();
       tar.attacked = true;
       if (tar.ship.isSunk()) this.shipCount--;
@@ -71,6 +74,10 @@ export default class Gameboard {
     for (const shipLength of arr) {
       const d = coin() ? 'right' : 'bottom';
       const arr = this.getAvailableCellForShip(d, shipLength);
+      if (!arr.length)
+        throw new Error(
+          'Failed to randomise ships, try adjusting you settings.',
+        );
       const random = Math.floor(Math.random() * arr.length);
       this.placeShipByHead(arr[random].point, shipLength, d);
     }
@@ -78,21 +85,18 @@ export default class Gameboard {
 
   clearBoard() {
     //loop through every Point, make the ship property be null
-    for (const key in this.board) {
-      if (this.board[key].ship) {
-        this.board[key].ship = null;
-      }
-    }
+    for (const key in this.board)
+      if (this.board[key].ship) this.board[key].ship = null;
     this.boardCleaned = true;
   }
-  genBoard() {
+  init() {
     return gen();
   }
 }
-function gen() {
+function gen(w = 10, h = 10) {
   const obj = {};
-  for (let i = 0; i < 10; i++) {
-    for (let j = 0; j < 10; j++) {
+  for (let i = 0; i < w; i++) {
+    for (let j = 0; j < h; j++) {
       const point = `${i},${j}`;
       obj[point] = new Point([i, j]);
     }
@@ -114,7 +118,6 @@ function gen() {
 class Point {
   constructor(point) {
     //point should be an array, e.g. [0,3]
-
     this.point = point;
     this.right = null;
     this.left = null;
@@ -124,15 +127,15 @@ class Point {
     this.attacked = false;
     this.available = true;
   }
-  isAvailableForShip(d, count) {
+  isAvailableForShip(d, length) {
     let curr = this;
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < length; i++) {
       if (!curr || !curr.available) return false;
       curr = curr[d];
     }
     return true;
   }
-  getSurroudingCellsInavailable() {
+  getSurroudingCellsUnavailable() {
     this.available = false;
     if (this.right) this.right.available = false;
     if (this.left) this.left.available = false;
@@ -151,4 +154,3 @@ class Point {
     }
   }
 }
-//generate true or false

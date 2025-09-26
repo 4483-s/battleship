@@ -2,3 +2,139 @@
 * {
   box-sizing: border-box;
 }
+:root {
+  --red-cross: url(../assets/x.svg);
+  --dot: url(../assets/dot.svg);
+  --square-height: 2.4rem;
+}
+body {
+  user-select: none;
+  display: grid;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.top {
+  flex: 4;
+}
+.main {
+  flex: 38;
+  display: flex;
+  padding: 0 12em 0 12em;
+}
+.left,
+.right {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.grid-container-outer {
+  flex: 40;
+  display: flex;
+  justify-content: center;
+}
+
+.grid-container-inner {
+  display: grid;
+  grid-template-columns: repeat(11, var(--square-height));
+  grid-template-rows: repeat(11, var(--square-height));
+  aspect-ratio: 1/1;
+  justify-content: center;
+  /* height: 500px; */
+}
+.number-column {
+  display: flex;
+  grid-column: 1 / span 1;
+  grid-row: 1 / -2;
+  flex-direction: column;
+}
+.number-row {
+  display: flex;
+  grid-column: 2 /-1;
+  grid-row: -2 / span 1;
+}
+.number-column,
+.number-row {
+  display: flex;
+  & > * {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.grid {
+  grid-row: 1/-2;
+  grid-column: 2/-1;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  gap: 2px;
+}
+.grid > * {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+}
+.title {
+  flex: 1;
+}
+/* .test { */
+/*   background-color: #b4b4ff; */
+/* } */
+.bottom {
+  margin-bottom: 3em;
+  display: flex;
+  & > * {
+    flex: 1;
+  }
+}
+.bottom > .ship-box {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  & > * {
+    display: flex;
+  }
+}
+.buttons {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+.ship {
+  margin: 0.6em;
+  background-color: #f2f2ff;
+  border: 2px solid #0000ff;
+  width: calc(var(--square-height) * 3);
+  height: var(--square-height);
+  &.ship1 {
+    width: calc(var(--square-height) * 1);
+  }
+  &.ship4 {
+    width: calc(var(--square-height) * 4);
+  }
+  &.ship3 {
+    width: calc(var(--square-height) * 3);
+  }
+  &.ship2 {
+    width: calc(var(--square-height) * 2);
+  }
+}
+.empty {
+  background-color: #eeeeee;
+}
+.hit {
+  /* background-image: url(../assets/x.svg); */
+  background-image: var(--red-cross);
+  background-size: 100%;
+}
+.discovered {
+  background-image: var(--dot);
+  background-size: 100%;
+}
+.hide {
+  display: none !important;
+}

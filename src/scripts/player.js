@@ -1,6 +1,9 @@
 import Gameboard from './gameboard';
 export default class Player {
-  constructor() {
-    this.gamboard = new Gameboard();
+  constructor(initBoard) {
+    this.gamboard = new Gameboard(initBoard);
+  }
+  randomnise() {
+    this.gamboard.randomPlace();
   }
 }

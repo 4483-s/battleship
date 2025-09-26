@@ -1,2 +1,7 @@
 import Player from './player';
-const cmptr = new Player();
+export class Computer extends Player {
+  constructor(initBoard, smart) {
+    super(initBoard);
+    this.smart = smart;
+  }
+}

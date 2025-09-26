@@ -7,7 +7,7 @@ import Gameboard from './gameboard.js';
 //   console.log(n.board[k].point);
 // }
 function logGend() {
-  const n = new Gameboard();
+  const n = new Gameboard(true);
   n.randomPlace(4, 3, 3, 2, 2, 2, 1, 1, 1, 1);
   const arr = [];
   for (let i = 0; i < 10; i++) {
