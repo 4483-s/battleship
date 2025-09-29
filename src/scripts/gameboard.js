@@ -7,21 +7,30 @@ export default class Gameboard {
     this.boardCleaned = true;
     this.shipPoints = {};
   }
-  isDefeated() {
+  isDestroyed() {
     return !this.shipCount;
   }
-
-  placeShip(...co) {
-    //receive arrays of key, value pair representing coordinates e.g. [1,2], [1,3]
-    const ship = new Ship(co.length);
-    for (const curr of co) {
-      const cell = this.board[`${curr[0]},${curr[1]}`];
-      cell.ship = ship;
-      cell.getSurroudingCellsUnavailable();
-    }
-    this.shipCount++;
+  checkCellAvailability(x, y) {
+    const tar = this.board[`${x},${y}`];
+    return tar.available;
   }
+  checkCellAvailabilityForShip(x, y, length, d) {
+    const tar = this.board[`${x},${y}`];
+    return tar.isAvailableForShip(d, length);
+  }
+  // placeShip(...co) {
+  //   //receive arrays of key, value pair representing coordinates e.g. [1,2], [1,3]
+  //   const ship = new Ship(co.length);
+  //   for (const curr of co) {
+  //     const cell = this.board[`${curr[0]},${curr[1]}`];
+  //     cell.ship = ship;
+  //     cell.getSurroudingCellsUnavailable();
+  //   }
+  //   this.shipCount++;
+  //   this.boardCleaned = true;
+  // }
   placeShipByHead(head, length, d) {
+    //receives a head point, e.g. [4, 3], ship length, and direction
     const ship = new Ship(length);
     ship.dir = d === 'right' ? 'h' : 'v';
     let curr = this.board[`${head[0]},${head[1]}`];
@@ -30,24 +39,21 @@ export default class Gameboard {
       if (curr) curr.getSurroudingCellsUnavailable();
       curr = curr[d];
     }
+    this.boardCleaned = true;
     this.shipCount++;
   }
   // if successfully hit, return true
   receiveAttack(x, y) {
     const tar = this.board[`${x},${y}`];
-
+    if (tar.attacked) return 'failed';
     if (!tar.ship) {
-      //responds towards emptyCell
       tar.attacked = true;
-      return true;
-    }
-    //if the square is hit before, return false directly
-    else if (tar.attacked) return false;
-    else {
+      return 'hitempty';
+    } else {
       tar.ship.hit();
       tar.attacked = true;
       if (tar.ship.isSunk()) this.shipCount--;
-      return true;
+      return 'hitship';
     }
   }
   getEmptyCells() {
@@ -58,20 +64,23 @@ export default class Gameboard {
     return arr;
   }
   getAvailableCell() {
+    //find the points having the 'available' property false
     const arr = [];
     for (const key in this.board)
       if (this.board[key].available) arr.push(this.board[key]);
     return arr;
   }
-  getAvailableCellForShip(d, len) {
+  getAvailableCellForShip(d, length) {
     const emptyCells = this.getAvailableCell();
-    return emptyCells.filter(v => v.isAvailableForShip(d, len));
+    return emptyCells.filter(v => v.isAvailableForShip(d, length));
   }
-  randomPlace(...arr) {
+  randomPlace(...arrForShips) {
+    //this function takes an array of ships, represented by their length, e.g. [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
+    // then place these ship on the board
     if (!this.boardCleaned) this.clearBoard();
     this.boardCleaned = false;
-    arr.sort((a, b) => b - a);
-    for (const shipLength of arr) {
+    arrForShips.sort((a, b) => b - a);
+    for (const shipLength of arrForShips) {
       const d = coin() ? 'right' : 'bottom';
       const arr = this.getAvailableCellForShip(d, shipLength);
       if (!arr.length)
@@ -81,18 +90,23 @@ export default class Gameboard {
       const random = Math.floor(Math.random() * arr.length);
       this.placeShipByHead(arr[random].point, shipLength, d);
     }
+    this.shipCount = arrForShips.length;
   }
 
   clearBoard() {
-    //loop through every Point, make the ship property be null
-    for (const key in this.board)
-      if (this.board[key].ship) this.board[key].ship = null;
+    for (const key in this.board) {
+      this.board[key].ship = null;
+      this.board[key].available = true;
+    }
+    this.shipCount = 0;
     this.boardCleaned = true;
   }
   init() {
+    //inditialise the board
     return gen();
   }
 }
+// function for returning clean board object with empty Point objects, the keys are strings of x,y representing their coordinates
 function gen(w = 10, h = 10) {
   const obj = {};
   for (let i = 0; i < w; i++) {
@@ -115,6 +129,7 @@ function gen(w = 10, h = 10) {
   }
   return obj;
 }
+// constructor for a single point on the board
 class Point {
   constructor(point) {
     //point should be an array, e.g. [0,3]

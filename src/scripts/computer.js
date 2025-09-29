@@ -1,7 +1,6 @@
 import Player from './player';
 export class Computer extends Player {
-  constructor(initBoard, smart) {
+  constructor(initBoard) {
     super(initBoard);
-    this.smart = smart;
   }
 }

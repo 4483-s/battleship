@@ -1,20 +1,25 @@
 import '../styles/styles.css';
-import './domgen.js';
-const msg = document.querySelector('.msg');
-const randomise = document.querySelector('.randomise');
-const reset = document.querySelector('.reset');
-const exit = document.querySelector('.exit');
-const player1Grid = document.querySelector('.player1-grid');
-const player2Grid = document.querySelector('.player2-grid');
-const shipContainer = document.querySelector('.ship-container');
-const startBtn = document.querySelector('.start');
-const right = document.querySelector('.right');
-const play = document.querySelector('.play');
-const bottom = document.querySelectorAll('.bottom');
-right.classList.add('hide');
-exit.classList.add('hide');
+import * as dom from './dom.js';
+import startGame from './game.js';
+dom.right.classList.add('hide');
+dom.exit.classList.add('hide');
 function userAttack(e) {}
-play.addEventListener('click', e => {});
-randomise.addEventListener('click', e => {});
-reset.addEventListener('click', e => {});
-exit.addEventListener('click', e => {});
+dom.play.addEventListener('click', e => {
+  if (!shipPlaced) {
+    showPlaceShipWarnding();
+    return;
+  }
+  startGame();
+});
+dom.randomise.addEventListener('click', e => {});
+dom.reset.addEventListener('click', e => {});
+dom.exit.addEventListener('click', e => {});
+function initBoardHtml(grid) {
+  for (let i = 9; i >= 0; i--)
+    for (let j = 0; j < 10; j++) {
+      const point = document.createElement('div');
+      point.classList.add('empty');
+      point.textContent = `${j},${i}`;
+      grid.append(point);
+    }
+}

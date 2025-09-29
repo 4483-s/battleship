@@ -1,7 +1,3 @@
-addEventListener('dragstart', e => {
-  e.preventDefault();
-});
-const grid = document.querySelectorAll('.grid');
 function gen(grid) {
   for (let i = 9; i >= 0; i--) {
     for (let j = 0; j < 10; j++) {
@@ -12,6 +8,3 @@ function gen(grid) {
     }
   }
 }
-grid.forEach(v => {
-  gen(v);
-});
