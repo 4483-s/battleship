@@ -1,42 +1,46 @@
 import Player from './player.js';
 import { coin } from './utils.js';
+import Computer from './computer.js';
 
 export default function Game() {
-  //player1 will always get represented as 0, player2 is 1
-  //turn = true means player2 should get attacked
   let winner = null;
   let turn = coin();
   let started = false;
-  const player1 = new Player(true);
-  const player2 = new Player(true);
-  const processAttack = (attackedPlayer, x, y) => {
-    if (!!attackedPlayer === turn) return 'wrongplayer';
-    const targetPlayer = attackedPlayer ? player2 : player1;
-    const attackResult = targetPlayer.gamboard.receiveAttack(x, y);
+  const player = new Player();
+  const computer = new Computer();
+  const processAttack = (x, y) => {
+    const attackResult = computer.gamboard.receiveAttack(x, y);
     if (attackResult === 'hitempty') turn = !turn;
-    if (targetPlayer.gamboard.isDestroyed()) winner = attackedPlayer ? 0 : 1;
     return attackResult;
   };
-  const start = () => (started = true);
+  const start = () => {
+    started = true;
+    return true;
+  };
 
   const getWinner = () => winner;
   const getTurn = () => turn;
-  const checkCell = (player, x, y, length, d) => {
-    const targetPlayer = player ? player2 : player1;
-    return targetPlayer.gamboard.checkCellAvailabilityForShip(x, y, length, d);
+  const checkCell = (x, y, length, d) => {
+    return computer.gamboard.checkCellAvailabilityForShip(x, y, length, d);
   };
-  const placeShip = (player, x, y, length, d) => {
-    const targetPlayer = player ? player2 : player1;
-    if (checkCell(player, x, y, length, d)) {
-      targetPlayer.gamboard.placeShipByHead([x, y], length, d);
+  const placeShip = (x, y, length, d) => {
+    const cellIsAvailable = checkCell(x, y, length, d);
+    if (cellIsAvailable) {
+      player.gamboard.placeShipByHead([x, y], length, d);
+      return true;
     }
+    return false;
   };
-  function randomPlace(player) {
-    const targetPlayer = player ? player2 : player1;
-    targetPlayer.gamboard.randomPlace();
-  }
+  const randomPlace = () => {
+    player.randomnise();
+  };
+  const reset = () => {
+    player.gamboard.clearBoard();
+  };
   //
   return {
+    reset,
+    placeShip,
     processAttack,
     start,
     getWinner,
