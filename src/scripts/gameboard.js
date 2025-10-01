@@ -3,7 +3,7 @@ import Spot from './spot.js';
 import { coin } from './utils.js';
 export default class Gameboard {
   constructor() {
-    this.board = gen();
+    this.spots = gen();
     this.shipCount = 0;
     this.boardCleaned = true;
   }
@@ -11,18 +11,18 @@ export default class Gameboard {
     return !this.shipCount;
   }
   checkCellAvailability(x, y) {
-    const tar = this.board[`${x},${y}`];
+    const tar = this.spots[`${x},${y}`];
     return tar.available;
   }
   checkCellAvailabilityForShip(x, y, length, d) {
-    const tar = this.board[`${x},${y}`];
+    const tar = this.spots[`${x},${y}`];
     return tar.isAvailableForShip(d, length);
   }
   placeShipByHead(head, length, d) {
     //receives a head spot, e.g. [4, 3], ship length, and direction
     const ship = new Ship(length);
     ship.dir = d === 'right' ? 'h' : 'v';
-    let curr = this.board[`${head[0]},${head[1]}`];
+    let curr = this.spots[`${head[0]},${head[1]}`];
     for (let i = 0; i < length; i++) {
       curr.ship = ship;
       curr.getSurroudingCellsUnavailable();
@@ -33,7 +33,7 @@ export default class Gameboard {
   }
   // if successfully hit, return true
   receiveAttack(x, y) {
-    const tar = this.board[`${x},${y}`];
+    const tar = this.spots[`${x},${y}`];
     if (tar.discovered) return 'failed';
     if (!tar.ship) {
       tar.discovered = true;
@@ -53,21 +53,21 @@ export default class Gameboard {
       return 'hitship';
     }
   }
-  getAvailableCell() {
+  #getAvailableCell() {
     //find the spots having the 'available' property true
     const arr = [];
-    for (const key in this.board)
-      if (this.board[key].available) arr.push(this.board[key]);
+    for (const key in this.spots)
+      if (this.spots[key].available) arr.push(this.spots[key]);
     return arr;
   }
   getAvailableCellForShip(d, length) {
-    const emptyCells = this.getAvailableCell();
+    const emptyCells = this.#getAvailableCell();
     return emptyCells.filter(v => v.isAvailableForShip(d, length));
   }
   randomPlace(...arrForShips) {
     //this function takes an array of ships, represented by their length, e.g. [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
     // then place these ship on the board
-    if (arrForShips.length) arrForShips = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+    if (!arrForShips.length) arrForShips = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
     if (!this.boardCleaned) this.clearBoard();
     this.boardCleaned = false;
     arrForShips.sort((a, b) => b - a);
@@ -85,22 +85,15 @@ export default class Gameboard {
   }
 
   clearBoard() {
-    for (const key in this.board) {
-      this.board[key].ship = null;
-      this.board[key].available = true;
-      this.board[key].hitShip = true;
+    for (const key in this.spots) {
+      this.spots[key].ship = null;
+      this.spots[key].available = true;
+      this.spots[key].hitShip = true;
     }
     this.shipCount = 0;
     this.boardCleaned = true;
   }
 }
-//
-//
-//
-//
-//
-//
-//
 function gen(w = 10, h = 10) {
   const obj = {};
   for (let i = 0; i < w; i++) {
@@ -125,7 +118,7 @@ function gen(w = 10, h = 10) {
     const c = obj[key];
     c.topRight = c.top ? c.top.right : null;
     c.topLeft = c.top ? c.top.left : null;
-    c.bottomRight = c.bottom ? c.bototm.right : null;
+    c.bottomRight = c.bottom ? c.bottom.right : null;
     c.bottomLeft = c.bottom ? c.bottom.left : null;
   }
   return obj;

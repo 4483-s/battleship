@@ -1,7 +1,6 @@
 export default class Ship {
   constructor(length) {
     this.length = length;
-    this.sunk = false;
     this.hits = 0;
     this.id = crypto.randomUUID();
     this.dir = null;
