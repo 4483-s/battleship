@@ -1,22 +1,20 @@
 import Player from './player';
 export default function Computer() {
-  const { getSpotStatus, randomise, receiveAttack } = Player();
-  async function autoAttack(humanGameBoard) {
+  const { getSpotInfo, receiveAttack, randomise, forEachSpot } = Player();
+  function attack(humanObj) {
     const arr = [];
-    for (const key in humanGameBoard.spots) {
-      const c = humanGameBoard.spots[key];
-      if (!c.discovered) arr.push.c.spot;
-    }
-    const r = Math.floor(Math.random() * arr.length);
-    humanGameBoard.receiveAttack(...arr[r]);
-    return await promise();
-  }
-  const promise = () =>
-    new Promise(resolve => {
-      setTimeout(() => {
-        resolve('done');
-      }, 1500);
+    humanObj.forEachSpot(v => {
+      if (v.discovered) arr.push(v.spot);
     });
-
-  return { getSpotStatus, autoAttack, randomise, receiveAttack };
+    const r = Math.floor(Math.random() * arr.length);
+    return humanObj.receiveAttack(...arr[r]);
+  }
+  return {
+    getSpotInfo,
+    receiveAttack,
+    randomise,
+    forEachSpot,
+    attack,
+  };
 }
+//

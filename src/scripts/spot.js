@@ -12,14 +12,22 @@ export default class Spot {
     this.discovered = false;
     this.hitShip = false;
   }
-  isAvailableForShip(d, length) {
+  isAvailableForShip(d, length, verbose) {
     let curr = this;
+    const obj = {};
+    obj.spots = [];
+    obj.booleanResult = false;
     for (let i = 0; i < length; i++) {
-      if (!curr || !curr.available) return false;
+      if (!curr || !curr.available) {
+        return verbose ? obj : false;
+      }
+      obj.spots.push(curr.spot);
       curr = curr[d];
     }
-    return true;
+    obj.booleanResult = true;
+    return verbose ? obj : true;
   }
+
   getSurroudingCellsUnavailable() {
     this.available = false;
     if (this.right) this.right.available = false;

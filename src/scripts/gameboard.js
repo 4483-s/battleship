@@ -10,19 +10,14 @@ export default class Gameboard {
   isDestroyed() {
     return !this.shipCount;
   }
-  checkCellAvailability(x, y) {
+  checkCellAvailabilityForShip(x, y, length, d, verbose) {
     const tar = this.spots[`${x},${y}`];
-    return tar.available;
+    return tar.isAvailableForShip(d, length, verbose);
   }
-  checkCellAvailabilityForShip(x, y, length, d) {
-    const tar = this.spots[`${x},${y}`];
-    return tar.isAvailableForShip(d, length);
-  }
-  placeShipByHead(head, length, d) {
-    //receives a head spot, e.g. [4, 3], ship length, and direction
+  placeShip(x, y, length, d) {
     const ship = new Ship(length);
     ship.dir = d === 'right' ? 'h' : 'v';
-    let curr = this.spots[`${head[0]},${head[1]}`];
+    let curr = this.spots[`${x},${y}`];
     for (let i = 0; i < length; i++) {
       curr.ship = ship;
       curr.getSurroudingCellsUnavailable();
@@ -79,7 +74,7 @@ export default class Gameboard {
           'Failed to randomise ships, try adjusting you settings.',
         );
       const random = Math.floor(Math.random() * arr.length);
-      this.placeShipByHead(arr[random].spot, shipLength, d);
+      this.placeShip(...arr[random].spot, shipLength, d);
     }
     this.shipCount = arrForShips.length;
   }
