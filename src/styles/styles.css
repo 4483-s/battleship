@@ -1,6 +1,8 @@
 @import url('./normalize.css');
 * {
   box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 :root {
   --red-cross: url(../assets/x.svg);
@@ -8,9 +10,9 @@
   --square-height: 2.4rem;
 }
 body {
+  /* min-height: 100vh; */
+  min-height: 900px;
   user-select: none;
-  display: grid;
-  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -18,9 +20,24 @@ body {
   flex: 4;
 }
 .main {
-  flex: 38;
+  flex: 10;
   display: flex;
   padding: 0 12em 0 12em;
+}
+.bottom {
+  margin-bottom: 3em;
+  display: flex;
+  & > * {
+    flex: 1;
+  }
+}
+.bottom > .ship-box {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  & > * {
+    display: flex;
+  }
 }
 .left,
 .right {
@@ -84,21 +101,6 @@ body {
 /* .test { */
 /*   background-color: #b4b4ff; */
 /* } */
-.bottom {
-  margin-bottom: 3em;
-  display: flex;
-  & > * {
-    flex: 1;
-  }
-}
-.bottom > .ship-box {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  & > * {
-    display: flex;
-  }
-}
 .buttons {
   align-items: center;
   justify-content: center;
@@ -130,6 +132,9 @@ body {
   /* background-image: url(../assets/x.svg); */
   background-image: var(--red-cross);
   background-size: 100%;
+}
+.hasship {
+  background-color: blue;
 }
 .discovered {
   background-image: var(--dot);

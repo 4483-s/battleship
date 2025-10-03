@@ -1,62 +1,64 @@
 import { coin } from './utils.js';
 import Computer from './computer.js';
-
 import Human from './human.js';
-
+const renderComputer = new CustomEvent('renderComputer');
+const renderHuman = new CustomEvent('renderHuman');
+const humansTurnEvent = new CustomEvent('humansTurn');
+const computersTurnEvent = new CustomEvent('computersTurn');
+const playEvent = new CustomEvent('play');
+const uiResetEvent = new CustomEvent('uiReset');
 export default function Game() {
-  let winner = null;
-  let status = 'preparing';
+  const gameStarted = false;
   const human = Human();
   const computer = Computer();
-  let turn = coin();
-  computer.randomise();
-  const humanAttack = (x, y) => {
+  const attack = (x, y) => {
     const attackResult = computer.receiveAttack(x, y);
-    if (attackResult === 'hitempty') turn = !turn;
-    return;
-  };
-  const computerAttack = () => computer.attack(human);
-  const start = () => {
-    if (human.getShipCount() === 10) {
-      status = 'started';
-      return true;
+    document.dispatchEvent(renderComputer);
+    if (attackResult === 'hitempty') {
+      document.dispatchEvent(computersTurnEvent);
+      computerAttack();
     }
-    return false;
   };
-  const getWinner = () => winner;
-  const placeShip = (x, y, length, d) => human.placeShip(x, y, length, d);
-  const placeShipPreview = (x, y, length, d, verbose) =>
-    human.placeShipCheck(x, y, length, d, verbose);
-  const randomPlace = () => human.randomise();
-  const reset = () => human.resetBoard();
-  const getStatus = () => status;
+  const computerAttack = () => {
+    const id = setInterval(() => {
+      const result = computer.attack(human);
+      document.dispatchEvent(renderHuman);
+      if (result === 'hitempty') {
+        clearInterval(id);
+        document.dispatchEvent(humansTurnEvent);
+      }
+    }, 1500);
+  };
+  const placeShip = (x, y, length, d) => {
+    human.placeShip(x, y, length, d);
+    document.dispatchEvent(renderHuman);
+    document.dispatchEvent(new CustomEvent('placeShip'));
+  };
+  const placeShipCheck = (x, y, length, d) => {
+    const result = human.placeShipCheck(x, y, length, d, true);
+    const e = new CustomEvent('placeShipHover', { detail: result });
+    document.dispatchEvent(e);
+  };
   const exit = () => {
+    document.dispatchEvent(uiResetEvent);
     human.resetBoard();
     computer.randomise();
-    status = 'preparing';
+    gameStarted = false;
   };
-  // const shipIsplaced = () => human.getShipCount() === 10;
-  const forEachHumanSpot = v => human.forEachSpot(v);
-  const forEachComputerSpot = v => computer.forEachSpot(v);
-  return {
-    // shipIsplaced,
-    computerAttack,
-    forEachHumanSpot,
-    forEachComputerSpot,
-    exit,
-    placeShipPreview,
-    getStatus,
-    reset,
-    placeShip,
-    humanAttack,
-    start,
-    getWinner,
-    randomPlace,
+  const play = () => {
+    if (human.getShipCount() !== 10) {
+      document.dispatchEvent(new CustomEvent('playFailed'));
+      return;
+    }
+    document.dispatchEvent(playEvent);
+    if (coin()) {
+      computerAttack();
+    }
   };
+  const randomPlace = () => {
+    human.randomise();
+    document.dispatchEvent(renderHuman);
+    document.dispatchEvent(new CustomEvent('randomise'));
+  };
+  return { play, placeShip, placeShipCheck, attack, exit, randomPlace };
 }
-const wait = () =>
-  new Promise(resolve => {
-    setTimeout(() => {
-      resolve('done');
-    }, 1500);
-  });

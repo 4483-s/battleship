@@ -7,4 +7,4 @@ export const player2Grid = document.querySelector('.player2-grid');
 export const shipBox = document.querySelector('.ship-box');
 export const right = document.querySelector('.right');
 export const play = document.querySelector('.play');
-export const bottom = document.querySelectorAll('.bottom');
+export const bottom = document.querySelector('.bottom');
